@@ -6,8 +6,8 @@
 - [x] Landing page with hero section, feature highlights, and CTA
 - [x] Auction listing page with search, filters (category, location, price, date), and grid/list view
 - [x] Auction detail page with property info, images, bid history, countdown timer, source link, and map
-- [ ] User dashboard with watchlist, bid tracking, and recommendations
-- [ ] Admin dashboard for data sources, aggregation review, and analytics
+- [x] User dashboard with watchlist, bid tracking, and recommendations
+- [x] Admin dashboard for data sources, aggregation review, and analytics
 - [x] AI chat assistant embedded on auction detail pages
 
 ### Backend & Data
@@ -29,12 +29,12 @@
 ### Notifications & Alerts
 - [ ] In-app notification system (ending soon, new bids, matching auctions)
 - [ ] Email notification system (ending within 24h, outbid alerts, new matching auctions)
-- [ ] Notification preferences and management
+- [x] Notification preferences and management (Settings page)
 
 ### Authentication & Authorization
-- [ ] Manus OAuth integration with role-based access control
-- [ ] User roles: regular user and admin
-- [ ] Protected routes and procedures
+- [x] Manus OAuth integration with role-based access control
+- [x] User roles: regular user and admin
+- [x] Protected routes and procedures
 
 ### Design & Polish
 - [ ] Refined typography and color palette
