@@ -11,7 +11,7 @@
 - [x] AI chat assistant embedded on auction detail pages
 
 ### Backend & Data
-- [ ] Auction aggregation engine (GovPlanet, GSA Auctions, PropertyRoom, etc.)
+- [x] Auction aggregation engine (GovPlanet, GSA Auctions, PropertyRoom, etc.)
 - [x] Database schema for auctions, users, watchlists, bids, AI analysis, and notifications
 - [x] tRPC procedures for auction queries, filtering, and sorting
 - [ ] Admin procedures for data source management and analytics
@@ -27,8 +27,8 @@
 - [ ] Geospatial filtering of auctions by area
 
 ### Notifications & Alerts
-- [ ] In-app notification system (ending soon, new bids, matching auctions)
-- [ ] Email notification system (ending within 24h, outbid alerts, new matching auctions)
+- [x] In-app notification system (ending soon, new bids, matching auctions)
+- [x] Email notification system (ending within 24h, outbid alerts, new matching auctions)
 - [x] Notification preferences and management (Settings page)
 
 ### Authentication & Authorization
