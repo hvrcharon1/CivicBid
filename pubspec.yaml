@@ -1,0 +1,113 @@
+name: civicbid_mobile
+description: CivicBid - AI-Powered Government Auction Discovery Platform for Mobile
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI & Navigation
+  cupertino_icons: ^1.0.6
+  google_fonts: ^6.1.0
+  flutter_svg: ^2.0.7
+  smooth_page_indicator: ^1.1.0
+  
+  # State Management
+  provider: ^6.1.0
+  riverpod: ^2.4.0
+  flutter_riverpod: ^2.4.0
+  
+  # HTTP & API
+  http: ^1.1.0
+  dio: ^5.3.1
+  
+  # JSON Serialization
+  json_serializable: ^6.7.1
+  json_annotation: ^4.8.1
+  
+  # Local Storage
+  shared_preferences: ^2.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  
+  # Maps & Location
+  google_maps_flutter: ^2.5.0
+  geolocator: ^9.0.2
+  geocoding: ^2.1.1
+  
+  # Authentication
+  flutter_appauth: ^6.1.0
+  
+  # Image Handling
+  image_picker: ^1.0.4
+  cached_network_image: ^3.3.0
+  
+  # Date & Time
+  intl: ^0.19.0
+  
+  # Notifications
+  firebase_core: ^2.24.0
+  firebase_messaging: ^14.6.0
+  flutter_local_notifications: ^16.2.0
+  
+  # AI & LLM Integration
+  http: ^1.1.0
+  
+  # Connectivity
+  connectivity_plus: ^5.0.1
+  
+  # Logging
+  logger: ^2.0.1
+  
+  # Utils
+  uuid: ^4.0.0
+  url_launcher: ^6.2.0
+  share_plus: ^7.2.0
+  
+  # WebSocket for real-time updates
+  web_socket_channel: ^2.4.0
+  
+  # Video Player (for auction videos)
+  video_player: ^2.7.2
+  
+  # QR Code
+  qr_flutter: ^4.1.0
+  
+  # Charts & Analytics
+  fl_chart: ^0.65.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^3.0.0
+  build_runner: ^2.4.6
+  hive_generator: ^2.0.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/animations/
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Regular.ttf
+        - asset: assets/fonts/Inter-Bold.ttf
+          weight: 700
