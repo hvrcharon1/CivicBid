@@ -21,8 +21,8 @@ export default function AuctionListing() {
   const { user } = useAuth();
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [searchQuery, setSearchQuery] = useState("");
-  const [category, setCategory] = useState("");
-  const [state, setState] = useState("");
+  const [category, setCategory] = useState("all");
+  const [state, setState] = useState("all");
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [sortBy, setSortBy] = useState<"endDate" | "price" | "newest">("endDate");
   const [portalFilter, setPortalFilter] = useState<"all" | "federal" | "state">("all");
@@ -34,8 +34,8 @@ export default function AuctionListing() {
   // Fetch auctions with filters
   const { data: auctions, isLoading } = trpc.auctions.search.useQuery({
     query: searchQuery || undefined,
-    category: category || undefined,
-    state: state || undefined,
+    category: category !== "all" ? category : undefined,
+    state: state !== "all" ? state : undefined,
     minPrice: priceRange[0],
     maxPrice: priceRange[1],
     sortBy,
@@ -165,7 +165,7 @@ export default function AuctionListing() {
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All categories</SelectItem>
+                    <SelectItem value="all">All categories</SelectItem>
                     {categories.map((cat) => (
                       <SelectItem key={cat} value={cat}>
                         {cat.replace("_", " ")}
@@ -184,7 +184,7 @@ export default function AuctionListing() {
                     <SelectValue placeholder="All states" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All states</SelectItem>
+                    <SelectItem value="all">All states</SelectItem>
                     {states.map((s) => (
                       <SelectItem key={s} value={s}>
                         {s}
