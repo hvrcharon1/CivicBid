@@ -6,6 +6,7 @@ import 'package:civicbid_mobile/screens/auction_listing_screen.dart';
 import 'package:civicbid_mobile/screens/auction_detail_screen.dart';
 import 'package:civicbid_mobile/screens/dashboard_screen.dart';
 import 'package:civicbid_mobile/screens/settings_screen.dart';
+import 'package:civicbid_mobile/screens/portal_filter_screen.dart';
 import 'package:civicbid_mobile/utils/theme.dart';
 
 void main() {
@@ -53,6 +54,7 @@ class CivicBidApp extends ConsumerWidget {
         '/auctions': (context) => const AuctionListingScreen(),
         '/dashboard': (context) => const DashboardScreen(),
         '/settings': (context) => const SettingsScreen(),
+        '/portals': (context) => const PortalFilterScreen(),
       },
     );
   }
