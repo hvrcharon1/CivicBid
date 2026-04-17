@@ -84,3 +84,27 @@
 - AI chat is embedded on detail pages, not separate
 - Maps support both visualization and geographic filtering
 - Email notifications are sent for critical events (ending soon, outbid, new matches)
+
+
+## Portal Integration Update
+
+### Federal Portals (10)
+- GSA Auctions
+- Real Estate Sales
+- USA.gov Auctions
+- USA Car Auctions
+- Treasury Auctions
+- Treasury Repurchase
+- US Marshals Asset Forfeiture
+- HUD Home Store
+- FDIC Real Estate Sales
+- BLM Land Sales
+
+### State Portals (17)
+- California, Connecticut, Delaware, Illinois, Massachusetts, Minnesota, North Carolina, Oregon, Texas, New York, Florida, Georgia, Pennsylvania, Virginia, Washington, Colorado, Ohio
+
+### New Features Added
+- [x] 30+ government auction portal support
+- [x] Portal filtering in UI (federal/state)
+- [x] tRPC endpoints for portal management
+- [x] Portal tests (23 tests passing)

@@ -24,6 +24,12 @@ import {
   getUserById,
 } from "./db";
 import { invokeLLM } from "./_core/llm";
+import {
+  getAvailablePortals,
+  getPortalsByCategory,
+  getPortalsByState,
+  aggregateAllAuctions,
+} from "./aggregation";
 
 export const appRouter = router({
   system: systemRouter,
@@ -297,13 +303,55 @@ export const appRouter = router({
       }),
   }),
 
-  // ============ USER PROFILE ============
+   // ============ USER PROFILE ============
   user: router({
     // Get user profile
     getProfile: protectedProcedure.query(async ({ ctx }) => {
       return await getUserById(ctx.user.id);
     }),
   }),
-});
 
+  // ============ PORTAL MANAGEMENT ============
+  portals: router({
+    // Get all available auction portals
+    getAll: publicProcedure.query(() => {
+      return getAvailablePortals();
+    }),
+
+    // Get federal portals
+    getFederal: publicProcedure.query(() => {
+      return getPortalsByCategory("federal");
+    }),
+
+    // Get state portals
+    getState: publicProcedure.query(() => {
+      return getPortalsByCategory("state");
+    }),
+
+    // Get portals by specific state
+    getByState: publicProcedure
+      .input(z.object({ state: z.string() }))
+      .query(({ input }) => {
+        return getPortalsByState(input.state);
+      }),
+
+    // Trigger auction aggregation (admin only)
+    aggregateNow: protectedProcedure.mutation(async ({ ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Only admins can trigger aggregation");
+      }
+      try {
+        const auctions = await aggregateAllAuctions();
+        return {
+          success: true,
+          auctionsFound: auctions.length,
+          message: `Successfully aggregated ${auctions.length} auctions from all portals`,
+        };
+      } catch (error) {
+        console.error("Aggregation error:", error);
+        throw error;
+      }
+    }),
+  }),
+});
 export type AppRouter = typeof appRouter;

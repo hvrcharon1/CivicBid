@@ -13,7 +13,7 @@ import {
 import {
   Slider,
 } from "@/components/ui/slider";
-import { MapPin, Heart, Clock, DollarSign, Grid3x3, List, Search } from "lucide-react";
+import { MapPin, Heart, Clock, DollarSign, Grid3x3, List, Search, Building2 } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -25,6 +25,11 @@ export default function AuctionListing() {
   const [state, setState] = useState("");
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [sortBy, setSortBy] = useState<"endDate" | "price" | "newest">("endDate");
+  const [portalFilter, setPortalFilter] = useState<"all" | "federal" | "state">("all");
+
+  // Fetch available portals
+  const { data: federalPortals = [] } = trpc.portals.getFederal.useQuery();
+  const { data: statePortals = [] } = trpc.portals.getState.useQuery();
 
   // Fetch auctions with filters
   const { data: auctions, isLoading } = trpc.auctions.search.useQuery({
@@ -223,6 +228,36 @@ export default function AuctionListing() {
                 </Select>
               </div>
 
+              <div>
+                <label className="block text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                  <Building2 className="w-4 h-4" />
+                  Auction Source
+                </label>
+                <div className="space-y-2">
+                  <Button
+                    variant={portalFilter === "all" ? "default" : "outline"}
+                    className="w-full justify-start"
+                    onClick={() => setPortalFilter("all")}
+                  >
+                    All Sources ({federalPortals.length + statePortals.length})
+                  </Button>
+                  <Button
+                    variant={portalFilter === "federal" ? "default" : "outline"}
+                    className="w-full justify-start"
+                    onClick={() => setPortalFilter("federal")}
+                  >
+                    Federal ({federalPortals.length})
+                  </Button>
+                  <Button
+                    variant={portalFilter === "state" ? "default" : "outline"}
+                    className="w-full justify-start"
+                    onClick={() => setPortalFilter("state")}
+                  >
+                    State ({statePortals.length})
+                  </Button>
+                </div>
+              </div>
+
               <Button variant="outline" className="w-full">
                 Clear Filters
               </Button>
@@ -308,6 +343,12 @@ export default function AuctionListing() {
                             <Clock className="w-4 h-4" />
                             {getTimeRemaining(auction.auctionEndDate)}
                           </div>
+                          {auction.source && (
+                            <div className="flex items-center gap-2 text-slate-600">
+                              <Building2 className="w-4 h-4" />
+                              {auction.source}
+                            </div>
+                          )}
                         </div>
 
                         <div className="flex justify-between items-center mt-auto pt-3 border-t border-slate-200">
@@ -332,6 +373,7 @@ export default function AuctionListing() {
                   setCategory("");
                   setState("");
                   setPriceRange([0, 100000]);
+                  setPortalFilter("all");
                 }}>
                   Clear Filters
                 </Button>
