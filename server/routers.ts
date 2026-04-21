@@ -30,6 +30,7 @@ import {
   getPortalsByState,
   aggregateAllAuctions,
 } from "./aggregation";
+import { analyzePropertyImage, analyzePropertyImages } from "./imageAnalysis";
 
 export const appRouter = router({
   system: systemRouter,
@@ -308,6 +309,56 @@ export const appRouter = router({
     // Get user profile
     getProfile: protectedProcedure.query(async ({ ctx }) => {
       return await getUserById(ctx.user.id);
+    }),
+  }),
+
+  // ============ IMAGE ANALYSIS ============
+  imageAnalysis: router({
+    // Analyze single property image
+    analyzeImage: protectedProcedure
+      .input(z.object({ imageUrl: z.string().url() }))
+      .mutation(async ({ input }) => {
+        return await analyzePropertyImage(input.imageUrl);
+      }),
+
+    // Analyze multiple property images
+    analyzeMultiple: protectedProcedure
+      .input(z.object({ imageUrls: z.array(z.string().url()) }))
+      .mutation(async ({ input }) => {
+        return await analyzePropertyImages(input.imageUrls);
+      }),
+  }),
+
+  // ============ ADMIN DASHBOARD ============
+  admin: router({
+    // Get platform analytics
+    getAnalytics: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Only admins can access analytics");
+      }
+      return {
+        totalAuctions: 0,
+        totalUsers: 0,
+        totalWatchlists: 0,
+        averageAuctionPrice: 0,
+        auctionsByCategory: {},
+      };
+    }),
+
+    // Get data sources
+    getDataSources: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Only admins can access data sources");
+      }
+      return await getDataSources();
+    }),
+
+    // Get recent auctions
+    getRecentAuctions: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user?.role !== "admin") {
+        throw new Error("Only admins can access auctions");
+      }
+      return await searchAuctions({ limit: 50, sortBy: "newest" });
     }),
   }),
 

@@ -13,7 +13,7 @@ import {
 import {
   Slider,
 } from "@/components/ui/slider";
-import { MapPin, Heart, Clock, DollarSign, Grid3x3, List, Search, Building2 } from "lucide-react";
+import { MapPin, Heart, Clock, DollarSign, Grid3x3, List, Search, Building2, Map } from "lucide-react";
 import { Link } from "wouter";
 import { useAuth } from "@/_core/hooks/useAuth";
 
@@ -26,6 +26,8 @@ export default function AuctionListing() {
   const [priceRange, setPriceRange] = useState([0, 100000]);
   const [sortBy, setSortBy] = useState<"endDate" | "price" | "newest">("endDate");
   const [portalFilter, setPortalFilter] = useState<"all" | "federal" | "state">("all");
+  const [showMap, setShowMap] = useState(false);
+  const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
 
   // Fetch available portals
   const { data: federalPortals = [] } = trpc.portals.getFederal.useQuery();
@@ -97,7 +99,6 @@ export default function AuctionListing() {
     if (!price) return "N/A";
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
       minimumFractionDigits: 0,
     }).format(price);
   };
@@ -112,6 +113,27 @@ export default function AuctionListing() {
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h left`;
     return `${Math.floor(diff / 86400000)}d left`;
   };
+
+  // Filter auctions by map bounds if bounds are set
+  const filteredAuctions = useMemo(() => {
+    if (!auctions || !mapBounds) return auctions;
+    
+    return auctions.filter((auction: any) => {
+      if (!auction.latitude || !auction.longitude) return true;
+      
+      const lat = parseFloat(String(auction.latitude));
+      const lng = parseFloat(String(auction.longitude));
+      
+      return (
+        lat >= mapBounds.south &&
+        lat <= mapBounds.north &&
+        lng >= mapBounds.west &&
+        lng <= mapBounds.east
+      );
+    });
+  }, [auctions, mapBounds]);
+
+  const displayAuctions = showMap && mapBounds ? filteredAuctions : auctions;
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -138,18 +160,47 @@ export default function AuctionListing() {
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative mb-6">
-            <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
-            <Input
-              placeholder="Search auctions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          {/* Search Bar and Map Toggle */}
+          <div className="flex gap-4 items-end">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 w-5 h-5 text-slate-400" />
+              <Input
+                placeholder="Search auctions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button
+              variant={showMap ? "default" : "outline"}
+              onClick={() => setShowMap(!showMap)}
+              className="gap-2"
+            >
+              <Map className="w-4 h-4" />
+              {showMap ? "Hide Map" : "Show Map"}
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Map View */}
+      {showMap && (
+        <div className="bg-white border-b border-slate-200 py-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="h-96 bg-slate-100 rounded-lg border border-slate-300 flex items-center justify-center">
+              <div className="text-center">
+                <MapPin className="w-12 h-12 text-slate-400 mx-auto mb-3" />
+                <p className="text-slate-600 font-medium">Map View - Geospatial Filtering</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  {mapBounds 
+                    ? `Showing ${filteredAuctions?.length || 0} auctions in selected area`
+                    : "Click and drag to filter auctions by location"}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -257,126 +308,169 @@ export default function AuctionListing() {
                   </Button>
                 </div>
               </div>
-
-              <Button variant="outline" className="w-full">
-                Clear Filters
-              </Button>
             </div>
           </div>
 
-          {/* Auction Grid/List */}
+          {/* Main Content */}
           <div className="lg:col-span-3">
-            {isLoading ? (
-              <div className="space-y-4">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-48 bg-slate-200 rounded-lg animate-pulse"></div>
-                ))}
+            {/* Results Summary */}
+            <div className="mb-6 flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-600">
+                  Showing {displayAuctions?.length || 0} auctions
+                  {mapBounds && ` in selected area`}
+                </p>
               </div>
-            ) : auctions && auctions.length > 0 ? (
-              <div
-                className={
-                  viewMode === "grid"
-                    ? "grid grid-cols-1 md:grid-cols-2 gap-6"
-                    : "space-y-4"
-                }
-              >
-                {auctions.map((auction: any) => (
-                  <Link key={auction.id} href={`/auction/${auction.id}`}>
-                    <Card
-                      className={`overflow-hidden hover:shadow-lg transition-shadow cursor-pointer ${
-                        viewMode === "list" ? "flex" : ""
-                      }`}
-                    >
-                      {/* Image */}
-                      <div
-                        className={`bg-gradient-to-br from-slate-200 to-slate-300 ${
-                          viewMode === "list" ? "w-48 h-32" : "w-full h-48"
-                        }`}
-                      >
-                        {auction.imageUrls && Array.isArray(auction.imageUrls) && auction.imageUrls.length > 0 ? (
-                          <img
-                            src={auction.imageUrls[0]}
-                            alt={auction.title}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-400">
-                            No image
-                          </div>
-                        )}
-                      </div>
+              {mapBounds && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setMapBounds(null)}
+                >
+                  Clear Map Filter
+                </Button>
+              )}
+            </div>
 
-                      {/* Content */}
-                      <div className="p-4 flex-1 flex flex-col">
-                        <div className="flex justify-between items-start mb-2">
-                          <h3 className="font-semibold text-slate-900 line-clamp-2">
-                            {auction.title}
-                          </h3>
-                          <button
+            {/* Loading State */}
+            {isLoading && (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin">
+                  <div className="h-8 w-8 border-4 border-slate-300 border-t-blue-600 rounded-full"></div>
+                </div>
+                <p className="mt-4 text-slate-600">Loading auctions...</p>
+              </div>
+            )}
+
+            {/* Auctions Grid */}
+            {!isLoading && viewMode === "grid" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {displayAuctions?.map((auction: any) => (
+                  <Link key={auction.id} href={`/auction/${auction.id}`}>
+                    <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
+                      <div className="bg-slate-200 h-48 flex items-center justify-center">
+                        <Building2 className="w-12 h-12 text-slate-400" />
+                      </div>
+                      <div className="p-4">
+                        <h3 className="font-semibold text-slate-900 line-clamp-2 mb-2">
+                          {auction.title}
+                        </h3>
+                        <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                          {auction.description}
+                        </p>
+                        <div className="space-y-2 mb-4">
+                          <div className="flex items-center gap-2 text-sm">
+                            <MapPin className="w-4 h-4 text-slate-400" />
+                            <span className="text-slate-600">{auction.state}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <DollarSign className="w-4 h-4 text-slate-400" />
+                            <span className="font-semibold text-slate-900">
+                              {formatPrice(auction.currentBid || auction.startingPrice)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Clock className="w-4 h-4 text-slate-400" />
+                            <span className="text-slate-600">
+                              {getTimeRemaining(auction.endDate)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="flex-1"
                             onClick={(e) => {
                               e.preventDefault();
                               handleWatchlistToggle(auction.id);
                             }}
-                            className={`flex-shrink-0 ml-2 ${
-                              watchlistIds.has(auction.id)
-                                ? "text-red-500"
-                                : "text-slate-400"
-                            }`}
                           >
                             <Heart
-                              className="w-5 h-5"
-                              fill={watchlistIds.has(auction.id) ? "currentColor" : "none"}
+                              className={`w-4 h-4 ${
+                                watchlistIds.has(auction.id)
+                                  ? "fill-red-500 text-red-500"
+                                  : ""
+                              }`}
                             />
-                          </button>
-                        </div>
-
-                        <p className="text-sm text-slate-600 mb-3 line-clamp-2">
-                          {auction.description}
-                        </p>
-
-                        <div className="space-y-2 mb-3 text-sm">
-                          <div className="flex items-center gap-2 text-slate-600">
-                            <MapPin className="w-4 h-4" />
-                            {auction.location || "Location TBD"}
-                          </div>
-                          <div className="flex items-center gap-2 text-slate-600">
-                            <Clock className="w-4 h-4" />
-                            {getTimeRemaining(auction.auctionEndDate)}
-                          </div>
-                          {auction.source && (
-                            <div className="flex items-center gap-2 text-slate-600">
-                              <Building2 className="w-4 h-4" />
-                              {auction.source}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex justify-between items-center mt-auto pt-3 border-t border-slate-200">
-                          <div>
-                            <div className="text-xs text-slate-500">Starting Bid</div>
-                            <div className="text-lg font-bold text-slate-900">
-                              {formatPrice(auction.startingBid)}
-                            </div>
-                          </div>
-                          <Button size="sm">View Details</Button>
+                          </Button>
+                          <Button className="flex-1">View Details</Button>
                         </div>
                       </div>
                     </Card>
                   </Link>
                 ))}
               </div>
-            ) : (
+            )}
+
+            {/* Auctions List */}
+            {!isLoading && viewMode === "list" && (
+              <div className="space-y-4">
+                {displayAuctions?.map((auction: any) => (
+                  <Link key={auction.id} href={`/auction/${auction.id}`}>
+                    <Card className="p-4 hover:shadow-lg transition-shadow cursor-pointer">
+                      <div className="flex gap-4">
+                        <div className="w-24 h-24 bg-slate-200 rounded flex-shrink-0 flex items-center justify-center">
+                          <Building2 className="w-8 h-8 text-slate-400" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-slate-900 mb-1">
+                            {auction.title}
+                          </h3>
+                          <p className="text-sm text-slate-600 mb-3 line-clamp-1">
+                            {auction.description}
+                          </p>
+                          <div className="flex gap-6 text-sm">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="w-4 h-4 text-slate-400" />
+                              <span>{auction.state}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <DollarSign className="w-4 h-4 text-slate-400" />
+                              <span className="font-semibold">
+                                {formatPrice(auction.currentBid || auction.startingPrice)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-4 h-4 text-slate-400" />
+                              <span>{getTimeRemaining(auction.endDate)}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 flex-col">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleWatchlistToggle(auction.id);
+                            }}
+                          >
+                            <Heart
+                              className={`w-4 h-4 ${
+                                watchlistIds.has(auction.id)
+                                  ? "fill-red-500 text-red-500"
+                                  : ""
+                              }`}
+                            />
+                          </Button>
+                          <Button size="sm">Details</Button>
+                        </div>
+                      </div>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!isLoading && displayAuctions?.length === 0 && (
               <div className="text-center py-12">
-                <p className="text-slate-600 mb-4">No auctions found matching your criteria</p>
-                <Button variant="outline" onClick={() => {
-                  setSearchQuery("");
-                  setCategory("");
-                  setState("");
-                  setPriceRange([0, 100000]);
-                  setPortalFilter("all");
-                }}>
-                  Clear Filters
-                </Button>
+                <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+                <p className="text-slate-600 font-medium">No auctions found</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Try adjusting your filters or search query
+                </p>
               </div>
             )}
           </div>

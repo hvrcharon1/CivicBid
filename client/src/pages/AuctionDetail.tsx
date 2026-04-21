@@ -16,6 +16,7 @@ import {
   AlertCircle,
   TrendingUp,
   Lightbulb,
+  Navigation,
 } from "lucide-react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Streamdown } from "streamdown";
@@ -244,6 +245,31 @@ export default function AuctionDetail() {
                   </div>
                 </div>
               </Card>
+
+              {/* Location Map */}
+              {(auction.latitude || auction.longitude) && (
+                <Card className="p-6 space-y-4">
+                  <h3 className="font-semibold text-slate-900 flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Property Location
+                  </h3>
+                  <div className="h-64 bg-slate-100 rounded-lg border border-slate-300 flex items-center justify-center">
+                    <div className="text-center">
+                      <MapPin className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                      <p className="text-slate-600 font-medium">Map View</p>
+                      <p className="text-sm text-slate-500 mt-1">
+                        {auction.latitude && auction.longitude
+                          ? `${parseFloat(String(auction.latitude)).toFixed(4)}°N, ${parseFloat(String(auction.longitude)).toFixed(4)}°E`
+                          : "Location coordinates available"}
+                      </p>
+                      <Button className="mt-4 gap-2" variant="outline">
+                        <Navigation className="w-4 h-4" />
+                        Get Directions
+                      </Button>
+                    </div>
+                  </div>
+                </Card>
+              )}
 
               {/* Source Link */}
               <a href={auction.sourceUrl} target="_blank" rel="noopener noreferrer">
