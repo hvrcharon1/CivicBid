@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.png" alt="CivicBid Logo" width="200" height="200">
+</p>
+
 # CivicBid - AI-Powered Government Auction Discovery Platform
 
 CivicBid is an elegant, full-featured platform for discovering and bidding on government surplus and seized property auctions. It aggregates auctions from multiple government sources and uses AI to provide intelligent analysis, fair market value estimates, and personalized bidding recommendations.
